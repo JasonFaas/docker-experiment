@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello-world-python-cronjob
+#  labels:
+#    app: {{ .Chart.Name }}
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: python-cronjob
+              image: "753699122647.dkr.ecr.us-west-2.amazonaws.com/jnf/docker-first:latest"
+              imagePullPolicy: IfNotPresent
+              command: ["python", "/usr/src/app/hello_world.py"]
+          restartPolicy: Never
