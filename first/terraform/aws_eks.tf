@@ -22,14 +22,15 @@ resource "aws_iam_role" "first_eks_role" {
   ]
 }
 
+
 resource "aws_eks_cluster" "first_test" {
-  name = "first-eks-cluster-test"
+  name = local.eks_cluster_name
   role_arn = aws_iam_role.first_eks_role.arn
 
   vpc_config {
-    subnet_ids = toset(data.aws_subnets.default.ids)
-    #     subnet_ids = aws_eks_cluster.first_test.vpc_config[0].subnet_ids
+    subnet_ids = aws_subnet.private_subnet[*].id
     endpoint_private_access   = true
+    endpoint_public_access = false
     public_access_cidrs       = ["0.0.0.0/0", ]
     security_group_ids        = []
   }
@@ -52,28 +53,16 @@ resource "aws_eks_cluster" "first_test" {
   }
 }
 
-output "eks_cluster_info" {
-  value = {
-    arn = aws_eks_cluster.first_test.arn
-    endpoint = aws_eks_cluster.first_test.endpoint
-    version = aws_eks_cluster.first_test.version
-    certificate_authority = aws_eks_cluster.first_test.certificate_authority[0].data
-    vpc_config = aws_eks_cluster.first_test.vpc_config
-  }
-}
-
-output "vpc_default" {
-  value = data.aws_vpc.default.id
-}
-
-
-
 # Define an EKS Node Group to add EC2 instances
 resource "aws_eks_node_group" "node_group" {
+  timeouts {
+    create = "10m"
+  }
+
   cluster_name    = aws_eks_cluster.first_test.name  # Refer to your EKS cluster
   node_group_name = "my-node-group"
   node_role_arn   = aws_iam_role.eks_node_role.arn   # IAM role for the EC2 nodes
-  subnet_ids      = toset(data.aws_subnets.default.ids)
+  subnet_ids      = aws_subnet.private_subnet[*].id
 
   scaling_config {
     desired_size = 2  # Number of nodes you want
