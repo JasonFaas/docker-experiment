@@ -38,10 +38,10 @@ resource "aws_eks_cluster" "first_test" {
   bootstrap_self_managed_addons = false
   enabled_cluster_log_types = []
 
-  access_config {
-    authentication_mode                         = "API_AND_CONFIG_MAP"
-    bootstrap_cluster_creator_admin_permissions = true
-  }
+#   access_config {
+#     authentication_mode                         = "API_AND_CONFIG_MAP"
+#     bootstrap_cluster_creator_admin_permissions = true
+#   }
 
   kubernetes_network_config {
     ip_family         = "ipv4"

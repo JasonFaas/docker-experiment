@@ -3,7 +3,7 @@ resource "aws_eip" "nat_eip" {
 
 resource "aws_nat_gateway" "nat_gateway" {
   allocation_id = aws_eip.nat_eip.id  # Elastic IP for the NAT Gateway
-  subnet_id     = data.aws_subnets.default[0].id  # Subnet where NAT Gateway is deployed (public)
+  subnet_id     = data.aws_subnets.default.ids[0]  # Subnet where NAT Gateway is deployed (public)
   connectivity_type = "public"
 
   tags = {
