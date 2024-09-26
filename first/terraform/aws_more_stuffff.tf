@@ -1,6 +1,6 @@
 # Create a Network ACL for the private subnet
 resource "aws_network_acl" "private_subnet_nacl" {
-  vpc_id = aws_vpc.your_vpc_id  # Replace with your VPC ID
+  vpc_id = data.aws_vpc.default.id
 
   ingress {
     protocol   = "tcp"
@@ -29,7 +29,9 @@ resource "aws_network_acl" "private_subnet_nacl" {
 
 # Associate the Network ACL with the private subnet
 resource "aws_network_acl_association" "private_subnet_nacl_association" {
-  subnet_id      = aws_subnet.private_subnet.id  # Replace with your private subnet ID
+  count = 2 # TODO: Extract this out as a lot of resources depends on it
+
+  subnet_id      = aws_subnet.private_subnet[count.index].id
   network_acl_id = aws_network_acl.private_subnet_nacl.id
 }
 
@@ -37,14 +39,14 @@ resource "aws_network_acl_association" "private_subnet_nacl_association" {
 resource "aws_security_group" "eks_nodes_sg" {
   name        = "eks-nodes-sg"  # Add a descriptive name for your security group
   description = "Security group for EKS nodes"
-  vpc_id      = aws_vpc.your_vpc_id  # Replace with your VPC ID
+  vpc_id      = data.aws_vpc.default.id
 
   ingress {
     description = "Allow inbound traffic from the VPC CIDR"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks  = [aws_vpc.your_vpc_id.cidr_block]  # Replace with your VPC CIDR
+    cidr_blocks  = [data.aws_vpc.default.cidr_block]  # Replace with your VPC CIDR
   }
 
   egress {
@@ -60,14 +62,4 @@ resource "aws_security_group" "eks_nodes_sg" {
   tags = {
     Name = "eks-nodes-sg"  # Add a descriptive name for your security group
   }
-}
-
-# TODO: Look up this part as the field doesn't look right
-# Modify the EKS Node Group resource to use the newly created security group
-resource "aws_eks_node_group" "node_group" {
-  # ... other configurations ...
-
-  security_group_ids = [aws_security_group.eks_nodes_sg.id]  # Replace with your security group ID
-
-  # ... other configurations ...
 }

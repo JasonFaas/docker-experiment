@@ -32,7 +32,7 @@ resource "aws_eks_cluster" "first_test" {
     endpoint_private_access   = true
     endpoint_public_access = false
     public_access_cidrs       = ["0.0.0.0/0", ]
-    security_group_ids        = []
+    security_group_ids        = [aws_security_group.eks_nodes_sg.id]
   }
 
   bootstrap_self_managed_addons = false
@@ -72,7 +72,7 @@ resource "aws_eks_node_group" "node_group" {
 
   instance_types = ["t3.medium"]  # Medium-sized EC2 instances
 
-  ami_type = "AL2_x86_64"  # Amazon Linux 2 AMI for x86
+  ami_type = local.ami
 
   disk_size = 20  # Size of EBS volume attached to the instances (in GB)
 
