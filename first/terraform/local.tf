@@ -9,4 +9,6 @@ locals {
     cluster_endpoint = aws_eks_cluster.first_test.endpoint
     cluster_ca_data = aws_eks_cluster.first_test.certificate_authority[0].data
   }
+
+  eks_version = "1.30"
 }

@@ -1,5 +1,5 @@
 
-resource "aws_iam_role" "first_eks_role" {
+resource "aws_iam_role" "eks_cluster_role" {
   name = "first-eks-role"
 
   description           = "Allows access to other AWS service resources that are required to operate clusters managed by EKS."
@@ -18,6 +18,7 @@ resource "aws_iam_role" "first_eks_role" {
   })
 
   managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKSServicePolicy",
     "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   ]
 }
@@ -25,12 +26,14 @@ resource "aws_iam_role" "first_eks_role" {
 
 resource "aws_eks_cluster" "first_test" {
   name = local.eks_cluster_name
-  role_arn = aws_iam_role.first_eks_role.arn
+  role_arn = aws_iam_role.eks_cluster_role.arn
+
+  version = local.eks_version
 
   vpc_config {
-    subnet_ids = aws_subnet.private_subnet[*].id
+    subnet_ids = aws_subnet.public_subnet[*].id
     endpoint_private_access   = true
-    endpoint_public_access = false
+    endpoint_public_access = true
     public_access_cidrs       = ["0.0.0.0/0", ]
     security_group_ids        = [aws_security_group.eks_nodes_sg.id]
   }
@@ -59,10 +62,17 @@ resource "aws_eks_node_group" "node_group" {
     create = "10m"
   }
 
-  cluster_name    = aws_eks_cluster.first_test.name  # Refer to your EKS cluster
-  node_group_name = "my-node-group"
-  node_role_arn   = aws_iam_role.eks_node_role.arn   # IAM role for the EC2 nodes
-  subnet_ids      = aws_subnet.private_subnet[*].id
+  release_version = "1.30.4-20240928" # https://github.com/awslabs/amazon-eks-ami/releases
+  version = local.eks_version
+  cluster_name    = aws_eks_cluster.first_test.name
+  node_group_name_prefix = "first-eks-node-group-"
+  node_role_arn   = aws_iam_role.eks_node_role.arn
+  subnet_ids      = aws_subnet.public_subnet[*].id
+
+  launch_template {
+    version = aws_launch_template.eks_nodes_launch_template.latest_version
+    id = aws_launch_template.eks_nodes_launch_template.id
+  }
 
   scaling_config {
     desired_size = 2  # Number of nodes you want
@@ -72,16 +82,23 @@ resource "aws_eks_node_group" "node_group" {
 
   instance_types = ["t3.medium"]  # Medium-sized EC2 instances
 
-  ami_type = local.ami
+#   ami_type = local.ami
 
-  disk_size = 20  # Size of EBS volume attached to the instances (in GB)
+#   disk_size = 20  # Size of EBS volume attached to the instances (in GB)
 
   labels = {
     env = "prod"
   }
 
+  lifecycle {
+    create_before_destroy = false # TODO: Set back to true after it is working.
+  }
+
   tags = {
-    Name = "eks-node-group"
+    Name = "eks-node-group",
+    "k8s.io/cluster-autoscaler/enabled" = "true",
+    "k8s.io/cluster-autoscaler/${aws_eks_cluster.first_test.name}" = "owned",
+    "Service" = "EKS worker node",
   }
 }
 
@@ -104,6 +121,11 @@ resource "aws_iam_role" "eks_node_role" {
 # Attach necessary policies to the Node Group Role
 resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks_node_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   role       = aws_iam_role.eks_node_role.name
 }
 
