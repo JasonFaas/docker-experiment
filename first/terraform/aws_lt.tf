@@ -23,7 +23,7 @@ Content-Type: text/x-shellscript; charset="us-ascii"
 
 #!/bin/bash
 set -o xtrace
-/etc/eks/bootstrap.sh ${aws_eks_cluster.first_test.name} \
+/etc/eks/bootstrap.sh ${aws_eks_cluster.eks_cluster.name} \
   --kubelet-extra-args '--eviction-hard=memory.available<200Mi,nodefs.available<10%,nodefs.inodesFree<5%' \
   --kubelet-extra-args '--eviction-soft=memory.available<500Mi,nodefs.available<15%,nodefs.inodesFree<10%' \
   --kubelet-extra-args '--eviction-soft-grace-period=memory.available=1m,nodefs.available=1m,nodefs.inodesFree=1m' \

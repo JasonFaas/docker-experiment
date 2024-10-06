@@ -1,6 +1,6 @@
 
 resource "aws_iam_role" "eks_cluster_role" {
-  name = "first-eks-role"
+  name = "eks-cluster-role"
 
   description           = "Allows access to other AWS service resources that are required to operate clusters managed by EKS."
 
@@ -24,7 +24,7 @@ resource "aws_iam_role" "eks_cluster_role" {
 }
 
 
-resource "aws_eks_cluster" "first_test" {
+resource "aws_eks_cluster" "eks_cluster" {
   name = local.eks_cluster_name
   role_arn = aws_iam_role.eks_cluster_role.arn
 
@@ -64,8 +64,8 @@ resource "aws_eks_node_group" "node_group" {
 
   release_version = "1.30.4-20240928" # https://github.com/awslabs/amazon-eks-ami/releases
   version = local.eks_version
-  cluster_name    = aws_eks_cluster.first_test.name
-  node_group_name_prefix = "first-eks-node-group-"
+  cluster_name    = aws_eks_cluster.eks_cluster.name
+  node_group_name_prefix = "eks-node-group-"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = aws_subnet.public_subnet[*].id
 
@@ -97,7 +97,7 @@ resource "aws_eks_node_group" "node_group" {
   tags = {
     Name = "eks-node-group",
     "k8s.io/cluster-autoscaler/enabled" = "true",
-    "k8s.io/cluster-autoscaler/${aws_eks_cluster.first_test.name}" = "owned",
+    "k8s.io/cluster-autoscaler/${aws_eks_cluster.eks_cluster.name}" = "owned",
     "Service" = "EKS worker node",
   }
 }
