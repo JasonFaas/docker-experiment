@@ -14,6 +14,12 @@ terraform {
 # Provider configuration
 provider "aws" {
   region = "us-west-2"  # Replace with the region of your EKS cluster
+
+  default_tags {
+    tags = {
+      CreatedBy = "JNF-Terraform"
+    }
+  }
 }
 
 data "aws_vpc" "default" {

@@ -25,6 +25,15 @@ resource "aws_iam_role" "eks_cluster_role" {
 
 
 resource "aws_eks_cluster" "eks_cluster" {
+  depends_on = [
+    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.AmazonSSMManagedInstanceCore,
+    aws_route_table_association.public_subnet_assoc,
+    aws_route.public_route,
+  ]
+
   name = local.eks_cluster_name
   role_arn = aws_iam_role.eks_cluster_role.arn
 
@@ -46,10 +55,10 @@ resource "aws_eks_cluster" "eks_cluster" {
 #     bootstrap_cluster_creator_admin_permissions = true
 #   }
 
-  kubernetes_network_config {
-    ip_family         = "ipv4"
-    service_ipv4_cidr = "10.100.0.0/16"
-  }
+  # kubernetes_network_config {
+  #   ip_family         = "ipv4"
+  #   service_ipv4_cidr = "10.100.0.0/16"
+  # }
 
   upgrade_policy {
     support_type = "STANDARD"
@@ -62,7 +71,7 @@ resource "aws_eks_node_group" "node_group" {
     create = "10m"
   }
 
-  release_version = "1.30.4-20240928" # https://github.com/awslabs/amazon-eks-ami/releases
+  release_version = "${local.eks_version}.4-20240928" # https://github.com/awslabs/amazon-eks-ami/releases
   version = local.eks_version
   cluster_name    = aws_eks_cluster.eks_cluster.name
   node_group_name_prefix = "eks-node-group-"
@@ -131,6 +140,7 @@ resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
 
 resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  # policy_arn = "arn:aws:iam::aws:policy/AmazonEKSCNIPolicy" # TODO: Is it supposed to be this?
   role       = aws_iam_role.eks_node_role.name
 }
 
