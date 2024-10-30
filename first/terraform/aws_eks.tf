@@ -31,7 +31,6 @@ resource "aws_eks_cluster" "eks_cluster" {
     aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.AmazonSSMManagedInstanceCore,
     aws_route_table_association.public_subnet_assoc,
-    aws_route.public_route,
   ]
 
   name = local.eks_cluster_name
@@ -67,6 +66,7 @@ resource "aws_eks_cluster" "eks_cluster" {
 
 # Define an EKS Node Group to add EC2 instances
 resource "aws_eks_node_group" "node_group" {
+  # TODO: Might want 2 node groups in the future...why need multiple node groups though?
   timeouts {
     create = "10m"
   }

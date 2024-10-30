@@ -10,4 +10,5 @@ locals {
   }
 
   eks_version = "1.30"
+  azs_for_eks = 2
 }

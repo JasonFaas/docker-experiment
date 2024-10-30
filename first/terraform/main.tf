@@ -22,10 +22,6 @@ provider "aws" {
   }
 }
 
-data "aws_vpc" "default" {
-  default = true
-}
-
 # # TODO: Filter for default subnets
 # data "aws_subnets" "default" {
 #   filter {
