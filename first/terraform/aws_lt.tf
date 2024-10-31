@@ -8,7 +8,7 @@ resource "aws_launch_template" "eks_nodes_launch_template" {
       delete_on_termination = true
       # encrypted = true
 #       kms_key_id = ""
-      volume_size = 50  # Adjust the volume size as needed
+      volume_size = 100  # Adjust the volume size as needed
       iops        = 200  # Adjust the IOPS as needed
       volume_type = "gp3"
     }

@@ -93,8 +93,6 @@ resource "aws_eks_node_group" "node_group" {
 
 #   ami_type = local.ami
 
-#   disk_size = 20  # Size of EBS volume attached to the instances (in GB)
-
   labels = {
     env = "prod"
   }
