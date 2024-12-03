@@ -71,6 +71,8 @@ resource "aws_eks_node_group" "node_group" {
     create = "10m"
   }
 
+  capacity_type = "ON_DEMAND" # "SPOT"
+
   release_version = "${local.eks_version}.4-20240928" # https://github.com/awslabs/amazon-eks-ami/releases
   version = local.eks_version
   cluster_name    = aws_eks_cluster.eks_cluster.name
