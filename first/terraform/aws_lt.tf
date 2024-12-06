@@ -2,6 +2,8 @@
 resource "aws_launch_template" "eks_nodes_launch_template" {
   name          = "eks-nodes-launch-template-standard"  # Add a descriptive name for your launch template
 
+  image_id = local.ami
+
   block_device_mappings {
     device_name  = "/dev/xvda"
     ebs {

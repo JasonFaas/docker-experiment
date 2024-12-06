@@ -73,8 +73,8 @@ resource "aws_eks_node_group" "node_group" {
 
   capacity_type = "ON_DEMAND" # "SPOT"
 
-  release_version = "${local.eks_version}.4-20240928" # https://github.com/awslabs/amazon-eks-ami/releases
-  version = local.eks_version
+  # release_version = "${local.eks_version}.4-20240928" # https://github.com/awslabs/amazon-eks-ami/releases
+  # version = local.eks_version
   cluster_name    = aws_eks_cluster.eks_cluster.name
   node_group_name_prefix = "eks-node-group-"
   node_role_arn   = aws_iam_role.eks_node_role.arn
@@ -86,14 +86,14 @@ resource "aws_eks_node_group" "node_group" {
   }
 
   scaling_config {
-    desired_size = 2  # Number of nodes you want
+    desired_size = 1  # Number of nodes you want
     max_size     = 2  # Maximum number of nodes
     min_size     = 1  # Minimum number of nodes
   }
 
-  instance_types = ["t3.medium"]  # Medium-sized EC2 instances
+  instance_types = ["m8g.medium"]  # Medium-sized EC2 instances, graviton for arm64
 
-#   ami_type = local.ami
+  # ami_type = local.ami_type
 
   labels = {
     env = "prod"

@@ -5,7 +5,9 @@ metadata:
 #  labels:
 #    app: {{ .Chart.Name }}
 spec:
-  schedule: "0 * * * *"
+  schedule: "0 0 * * *"
+  failedJobsHistoryLimit: 5
+  startingDeadlineSeconds: 300
   jobTemplate:
     spec:
       template:
@@ -14,5 +16,5 @@ spec:
             - name: python-cronjob
               image: "753699122647.dkr.ecr.us-west-2.amazonaws.com/jnf/docker-first:latest"
               imagePullPolicy: IfNotPresent
-              command: ["python", "/usr/src/app/hello_world.py"]
+              command: ["python", "/app/hello_world.py"]
           restartPolicy: Never

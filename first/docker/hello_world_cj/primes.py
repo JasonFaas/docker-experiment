@@ -22,7 +22,7 @@ while len(primes) < 100000:
 
     possible_prime += 1
 
-    if possible_prime > 10 ** 7:
+    if possible_prime > 10 ** 2:
         print(primes)
         print("Maximum limit reached.")
         print(len(primes))
