@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the application code to the working directory
 COPY app.py /app
 
+# Install curl
+RUN apt-get update && apt-get install -y curl
+
 # Install Flask
 RUN pip install Flask
 # Note that this is a single-threaded application currently.
